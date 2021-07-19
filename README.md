@@ -19,6 +19,7 @@ Or:
 ### Use POST method with url: `http://localhost:8081/calulate`
 with example body:
 
+```json
 [
   {
     "customerCode": "John1312",
@@ -66,10 +67,11 @@ with example body:
     "transactionDate": "2021-06-03"
   }
 ]
-
+```
 
 to receive in response information about customers and their points:
 
+```json
 [
   {
     "customerCode": "John1312",
@@ -104,3 +106,4 @@ to receive in response information about customers and their points:
     "totalPoints": 650
   }
 ]
+```
