@@ -16,7 +16,7 @@ to comfortably familiarize yourself with the functionality
 Or:
 
 
-### Use POST method with url: `http://localhost:8081/calulate`
+### Use POST method with url: `http://localhost:8081/calculate`
 with example body:
 
 ```json
