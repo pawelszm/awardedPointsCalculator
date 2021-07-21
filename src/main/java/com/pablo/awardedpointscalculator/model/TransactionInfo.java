@@ -2,13 +2,19 @@ package com.pablo.awardedpointscalculator.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.Getter;
+import lombok.NonNull;
 
 import java.math.BigDecimal;
 
 @Data
+@Getter
 @AllArgsConstructor
 public class TransactionInfo {
-    public String customerCode;
-    public String monthWithYear;
-    public BigDecimal transactionAmount;
+    @NonNull
+    private String customerCode;
+    @NonNull
+    private String monthWithYear;
+    @NonNull
+    private BigDecimal transactionAmount;
 }

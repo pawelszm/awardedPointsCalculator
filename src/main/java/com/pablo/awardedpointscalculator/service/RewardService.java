@@ -12,10 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.pablo.awardedpointscalculator.constant.Constant.FIRST_THRESHOLD_50;
@@ -39,28 +36,32 @@ public class RewardService {
 
         validator.validateTransactionDtoList(transactionDtoList);
 
-        Map<String, Map<String, Integer>> pointsMap = new LinkedHashMap<>();
-
-        transactionDtoList.stream()
-                .map(transactionDto -> mapper.dtoToModel(transactionDto))
-                .forEach(transactionInfo -> addToPointsMap(transactionInfo, pointsMap));
-
-        List<Reward> rewards = pointsMap.entrySet().stream()
-                .map(RewardService::apply)
+        List<TransactionDto> sortedTransactionDtoList = transactionDtoList.stream()
+                .sorted(Comparator.comparing(TransactionDto::getTransactionDate))
                 .collect(Collectors.toList());
 
-        return rewards;
+        validator.validateDatesRange(sortedTransactionDtoList);
+
+        Map<String, Map<String, Integer>> pointsMap = new LinkedHashMap<>();
+
+        sortedTransactionDtoList.stream()
+                .map(mapper::dtoToModel)
+                .forEach(transactionInfo -> addToPointsMap(transactionInfo, pointsMap));
+
+        return pointsMap.entrySet().stream()
+                .map(RewardService::apply)
+                .collect(Collectors.toList());
     }
 
     private void addToPointsMap(TransactionInfo transactionInfo, Map<String, Map<String, Integer>> customerPoints) {
 
-        Map<String, Integer> pointsPerMonths = customerPoints.getOrDefault(transactionInfo.customerCode, new HashMap<>());
+        Map<String, Integer> pointsPerMonths = customerPoints.getOrDefault(transactionInfo.getCustomerCode(), new LinkedHashMap<>());
 
-        Integer rewardPointsBeforeUpdate = pointsPerMonths.getOrDefault(transactionInfo.monthWithYear, 0);
-        Integer newRewardPoints = calculateRewardPoints(transactionInfo.transactionAmount);
-        pointsPerMonths.put(transactionInfo.monthWithYear, rewardPointsBeforeUpdate + newRewardPoints);
+        Integer rewardPointsBeforeUpdate = pointsPerMonths.getOrDefault(transactionInfo.getMonthWithYear(), 0);
+        Integer newRewardPoints = calculateRewardPoints(transactionInfo.getTransactionAmount());
+        pointsPerMonths.put(transactionInfo.getMonthWithYear(), rewardPointsBeforeUpdate + newRewardPoints);
 
-        customerPoints.put(transactionInfo.customerCode, pointsPerMonths);
+        customerPoints.put(transactionInfo.getCustomerCode(), pointsPerMonths);
     }
 
     private static Reward apply(Map.Entry<String, Map<String, Integer>> entry) {

@@ -17,7 +17,18 @@ Or:
 
 
 ### Use POST method with url: `http://localhost:8081/calculate`
-with example body:
+
+Request must consist of transactions in that form:
+
+```json
+{
+  "customerCode": "John1312",
+  "transactionAmount": 180,
+  "transactionDate": "2021-07-08"
+}
+```
+
+Send request with example body:
 
 ```json
 [
@@ -74,36 +85,65 @@ to receive in response information about customers and their points:
 ```json
 [
   {
-    "customerCode": "John1312",
-    "pointsPerEachMonth": {
-      "JULY2021": 210,
-      "JUNE2021": 0
-    },
-    "totalPoints": 210
-  },
-  {
     "customerCode": "Tom3444",
     "pointsPerEachMonth": {
-      "JULY2021": 49,
-      "APRIL2021": 292
+      "APRIL-2021": 292,
+      "JULY-2021": 49
     },
     "totalPoints": 341
   },
   {
-    "customerCode": "Jeff8712",
-    "pointsPerEachMonth": {
-      "JULY2021": 290
-    },
-    "totalPoints": 290
-  },
-  {
     "customerCode": "Kate7712",
     "pointsPerEachMonth": {
-      "APRIL2021": 90,
-      "JUNE2021": 90,
-      "MAY2021": 470
+      "APRIL-2021": 90,
+      "MAY-2021": 470,
+      "JUNE-2021": 90
     },
     "totalPoints": 650
+  },
+  {
+    "customerCode": "John1312",
+    "pointsPerEachMonth": {
+      "JUNE-2021": 0,
+      "JULY-2021": 210
+    },
+    "totalPoints": 210
+  },
+  {
+    "customerCode": "Jeff8712",
+    "pointsPerEachMonth": {
+      "JULY-2021": 290
+    },
+    "totalPoints": 290
   }
 ]
+```
+
+Be aware of maximum dates interval (3 months) because after send request:
+
+```json
+[
+  {
+    "customerCode": "John1312",
+    "transactionAmount": 180,
+    "transactionDate": "2021-03-08"
+  },
+  {
+    "customerCode": "John1312",
+    "transactionAmount": 40,
+    "transactionDate": "2021-06-18"
+  }
+]
+```
+
+error is returned in response:
+
+```json
+{
+  "timeStamp": "07-21-2021 08:59:03",
+  "httpStatusCode": 400,
+  "httpStatus": "BAD_REQUEST",
+  "reason": "BAD REQUEST",
+  "message": "MAXIMUM INTERVAL BETWEEN DATES IS 3 MONTHS"
+}
 ```

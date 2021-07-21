@@ -21,12 +21,13 @@ public class RewardServiceTest {
     private static final String CUSTOMER_MARK = "Mark";
     private static final String CUSTOMER_TOM = "Tom";
     private static final String CUSTOMER_KATE = "Kate";
+    private static final LocalDate MARCH_10 = LocalDate.of(2021, 3, 10);
     private static final LocalDate APRIL_12 = LocalDate.of(2021, 4, 12);
     private static final LocalDate MAY_12 = LocalDate.of(2021, 5, 12);
     private static final LocalDate JUNE_12 = LocalDate.of(2021, 6, 12);
-    private static final String APRIL2021 = "APRIL2021";
-    private static final String MAY2021 = "MAY2021";
-    private static final String JUNE2021 = "JUNE2021";
+    private static final String APRIL2021 = "APRIL-2021";
+    private static final String MAY2021 = "MAY-2021";
+    private static final String JUNE2021 = "JUNE-2021";
 
     @Test
     void shouldReturnEmptyRewardsList(){
@@ -42,7 +43,7 @@ public class RewardServiceTest {
     void shouldReturnOneReward() {
 
         // given
-        TransactionDto firstTransaction = createTransactionDto(CUSTOMER_MARK, LocalDate.of(2021, 4, 12), BigDecimal.valueOf(90L));
+        TransactionDto firstTransaction = createTransactionDto(CUSTOMER_MARK, APRIL_12, BigDecimal.valueOf(90L));
 
         Map<String, Integer> monthsPoints = Map.of(APRIL2021, 40);
         Reward reward = createReward(CUSTOMER_MARK, monthsPoints, 40);
@@ -57,7 +58,7 @@ public class RewardServiceTest {
     void shouldThrowIllegalArgumentExceptionBecauseOfIncorrectAmount() {
 
         // given
-        TransactionDto firstTransaction = createTransactionDto(CUSTOMER_MARK, LocalDate.of(2021, 4, 12), BigDecimal.valueOf(-90L));
+        TransactionDto firstTransaction = createTransactionDto(CUSTOMER_MARK, APRIL_12, BigDecimal.valueOf(-90L));
         String expectedMessage = "Transaction amount must be greater than 0 - current value: -90";
 
         // when
@@ -74,12 +75,30 @@ public class RewardServiceTest {
     void shouldThrowIllegalArgumentExceptionBecauseOfIncorrectCustomerCode() {
 
         // given
-        TransactionDto firstTransaction = createTransactionDto("", LocalDate.of(2021, 4, 12), BigDecimal.valueOf(90L));
+        TransactionDto firstTransaction = createTransactionDto("", APRIL_12, BigDecimal.valueOf(90L));
         String expectedMessage = "Customer code is required";
 
         // when
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
             rewardService.calculateReward(prepareDto(firstTransaction));
+        });
+        String actualMessage = exception.getMessage();
+
+        // then
+        assertTrue(actualMessage.contains(expectedMessage));
+    }
+
+    @Test
+    void shouldThrowIllegalArgumentExceptionBecauseOfTooLongInterval() {
+
+        // given
+        TransactionDto firstTransaction = createTransactionDto(CUSTOMER_MARK, MARCH_10, BigDecimal.valueOf(90L));
+        TransactionDto secondTransaction = createTransactionDto(CUSTOMER_MARK, JUNE_12, BigDecimal.valueOf(90L));
+        String expectedMessage = "Maximum interval between dates is 3 months";
+
+        // when
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
+            rewardService.calculateReward(prepareDto(firstTransaction, secondTransaction));
         });
         String actualMessage = exception.getMessage();
 

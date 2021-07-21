@@ -9,10 +9,8 @@ import java.util.Objects;
 public class Reward {
     @NonNull
     public String customerCode;
-
     @NonNull
     public Map<String, Integer> pointsPerEachMonth;
-
     @NonNull
     public Integer totalPoints;
 
